@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+query_assets() {
+    local -r QUERY=$1
+    local -r URL="https://api.github.com/repos/knqyf263/pet/releases/latest"
+    curl --silent $URL | jq --raw-output "$QUERY"
+}
+
+fetch_asset() {
+    local -r ASSET_ID=$1
+    local -r URL="https://api.github.com/repos/knqyf263/pet/releases/assets/$ASSET_ID"
+    curl --silent --location --header 'Accept:application/octet-stream' "$URL"
+}
+
+main() {
+    local -r NAME=$(query_assets ".name")
+    local -r BIN=$(query_assets '.assets | .[] | select(.name|test(".*darwin_amd64.*")) | .name')
+    local -r VERSION=${NAME//v/}
+    local -r CHECKSUMS_ASSET_ID=$(query_assets '.assets | .[] | select(.name|test(".*checksums.*")) | .id')
+    local -r CHECKSUM=$(fetch_asset "$CHECKSUMS_ASSET_ID" | grep "$BIN" | cut -d' ' -f1)
+    local -r TEMPLATE=$(realpath "${0%/*}/../Templates/pet.rb.tmpl")
+    local -r FORMULA=$(realpath "${0%/*}/../Formula/pet.rb")
+    sed -e "s/{{name}}/$NAME/" -e "s/{{binary}}/$BIN/" -e "s/{{checksum}}/$CHECKSUM/" -e "s/{{version}}/$VERSION/" "$TEMPLATE" > "$FORMULA"
+}
+
+main
