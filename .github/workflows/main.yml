@@ -8,3 +8,11 @@ jobs:
     - run: sudo apt-get install -y shellcheck
     - uses: actions/checkout@v2
     - run: shellcheck bin/*
+  install:
+    runs-on: macos-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+    - uses: actions/checkout@v2
+    - run: brew tap alexpyoung/tools
+    - run: brew install pet packageddataviewer
