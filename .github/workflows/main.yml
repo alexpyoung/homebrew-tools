@@ -15,6 +15,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: brew tap alexpyoung/tools
-    - run: brew install packageddataviewer
-    - run: brew install pet
-    - run: brew install protonvpn
+    - run: brew install alexpyoung/tools/packageddataviewer
+    - run: brew install alexpyoung/tools/pet
+    - run: brew install alexpyoung/tools/protonvpn
